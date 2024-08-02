@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vtu_client/main.dart';
 import 'package:vtu_client/model/user_profile.dart';
 import 'package:vtu_client/persistence.dart';
+import 'package:vtu_client/screens/home.dart';
 import 'package:vtu_client/screens/register.dart';
 import 'package:vtu_client/screens/request_password.dart';
 import 'package:vtu_client/utils/constant_widget.dart';
@@ -37,10 +38,34 @@ class _LoginState extends State<Login> {
     });
   }
 
+  bool isBioSet = false;
+  bool trackBio = false;
+
+  checkBio() async {
+    final bio = await TokenPersistence().getBioAuth() ?? false;
+    setState(() {
+      trackBio = bio;
+    });
+    if (bio) {
+      final bioVal = await authBio();
+      setState(() {
+        isBioSet = bioVal;
+      });
+      if (isBioSet) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const Home(),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
-    super.initState();
     _getDeviceID();
+    checkBio();
+    super.initState();
   }
 
   @override
@@ -102,6 +127,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -147,7 +173,6 @@ class _LoginState extends State<Login> {
                       },
                       controller: _enteredPassword,
                     ),
-                    // if (_isLoading) const CircularProgressIndicator.adaptive(),
                     if (_isLoading) const CircularProgressIndicator.adaptive(),
                     TextButton(
                       onPressed: () {
@@ -166,13 +191,30 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                     ),
-                    CustomButton(
-                      onPress: () {
-                        _login();
-                      },
-                      text: "Login",
-                      height: height * 0.07,
-                      width: width,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            onPress: () {
+                              _login();
+                            },
+                            text: "Login",
+                            height: height * 0.07,
+                            width: width,
+                          ),
+                        ),
+                        trackBio
+                            ? IconButton(
+                                onPressed: () {
+                                  checkBio();
+                                },
+                                icon: Icon(
+                                  Icons.fingerprint_sharp,
+                                  size: height * 0.07,
+                                ),
+                              )
+                            : const SizedBox(),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     RichText(

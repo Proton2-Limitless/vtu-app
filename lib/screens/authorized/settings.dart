@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vtu_client/persistence.dart';
 import 'package:vtu_client/utils/constant_widget.dart';
 import 'package:vtu_client/utils/custom_button.dart';
 
@@ -89,6 +90,7 @@ class Settings extends StatelessWidget {
 
 class CardList extends StatefulWidget {
   const CardList({
+    super.key,
     required this.listData,
     required this.itemCount,
     required this.index,
@@ -103,6 +105,20 @@ class CardList extends StatefulWidget {
 
 class _CardListState extends State<CardList> {
   bool _isSwitched = false;
+
+  @override
+  void initState() {
+    runBio();
+    super.initState();
+  }
+
+  runBio() async {
+    final bio = await TokenPersistence().getBioAuth() ?? false;
+    setState(() {
+      _isSwitched = bio;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -119,10 +135,22 @@ class _CardListState extends State<CardList> {
                   value: _isSwitched,
                   trackOutlineColor: MaterialStatePropertyAll(
                       Theme.of(context).colorScheme.primary),
-                  onChanged: (value) {
+                  onChanged: (value) async {
                     setState(() {
                       _isSwitched = value;
                     });
+                    if (_isSwitched) {
+                      final bioAuthVal = await authBio();
+                      setState(() {
+                        _isSwitched = bioAuthVal;
+                      });
+
+                      await TokenPersistence().setBioAuth(bioAuthVal);
+
+                      return;
+                    }
+                    await TokenPersistence().setBioAuth(_isSwitched);
+                    return;
                   },
                 );
               }

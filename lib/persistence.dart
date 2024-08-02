@@ -9,9 +9,20 @@ class TokenPersistence {
   static const _emailKey = "email";
   static const _otp = "otp";
   static const _profileKey = "otp";
+  static const _isBiometricAuth = "bio";
 
   Future<SharedPreferences> _prefs() async =>
       await SharedPreferences.getInstance();
+
+  Future<void> setBioAuth(bool bio) async {
+    final prefs = await _prefs();
+    prefs.setBool(_isBiometricAuth, bio);
+  }
+
+  Future<bool?> getBioAuth() async {
+    final prefs = await _prefs();
+    return prefs.getBool(_isBiometricAuth);
+  }
 
   Future<void> setToken(String token) async {
     final prefs = await _prefs();

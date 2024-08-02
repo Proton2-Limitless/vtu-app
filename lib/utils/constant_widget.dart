@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
 import 'package:vtu_client/screens/authorized/home_screen.dart';
 import 'package:vtu_client/screens/authorized/services.dart';
 import 'package:vtu_client/screens/authorized/settings.dart';
@@ -45,8 +47,37 @@ TextStyle fadeTextStyle(BuildContext context,
 void showSnackBar(BuildContext context, String content) {
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(content)),
+    SnackBar(
+      content: Text(content),
+    ),
   );
+}
+
+Future<bool> authBio() async {
+  final LocalAuthentication auth = LocalAuthentication();
+  try {
+    final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+    if (canAuthenticateWithBiometrics) {
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: " ",
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+        ),
+        authMessages: const <AuthMessages>[
+          AndroidAuthMessages(
+            signInTitle: "RechargeNow Biometric Authentication",
+            biometricHint: " ",
+            cancelButton: "Cancel",
+          ),
+        ],
+      );
+      return didAuthenticate;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    return false;
+  }
 }
 
 void showLoadingDialog(BuildContext context) {

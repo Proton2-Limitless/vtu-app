@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vtu_client/utils/constant_widget.dart';
 import 'package:vtu_client/widget/quick_access.dart';
-import 'package:vtu_client/widget/register/home_header.dart';
+import 'package:vtu_client/widget/home_header.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
